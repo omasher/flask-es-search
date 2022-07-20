@@ -11,6 +11,7 @@ services:
     depends_on:
       - database
       - elasticsearch
+    container_name: avaaz-exercise-app
     networks:
       - elasticsearch
     ports:
@@ -18,6 +19,7 @@ services:
   database:
     image: mysql:5.6
     restart: always
+    container_name: avaaz-exercise-db
     networks:
       - elasticsearch
     environment:
@@ -30,7 +32,7 @@ services:
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.3.2
-    container_name: elasticsearch
+    container_name: avaaz-exercise-es
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     ports:
@@ -50,7 +52,7 @@ services:
         hard: -1
   kibana:
     image: docker.elastic.co/kibana/kibana:8.3.2
-    container_name: kibana
+    container_name: avaaz-exercise-kibana
     environment:
       ELASTICSEARCH_URL: http://elasticsearch:9200
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
