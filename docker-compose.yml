@@ -2,22 +2,70 @@ version: "3.3"
 
 services:
   app:
+    restart: always
     build:
-      context: "./app"
+      context: "./"
     env_file: .env
     volumes:
-      - ./app/:/usr/app/
+      - ./:/usr/app/
     depends_on:
       - database
+      - elasticsearch
+    networks:
+      - elasticsearch
     ports:
       - "5000:5000"
   database:
     image: mysql:5.6
     restart: always
+    networks:
+      - elasticsearch
     environment:
-      MYSQL_ROOT_PASSWORD: v25xhycLlRY3sV7Z
-      MYSQL_DATABASE: "exercise"
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE}
     volumes:
       - ./database/initdb.d:/docker-entrypoint-initdb.d
     ports:
       - "3306:3306"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.3.2
+    container_name: elasticsearch
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elasticsearch
+    environment:
+      - node.name=elasticsearch
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      - discovery.seed_hosts=elasticsearch
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.3.2
+    container_name: kibana
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - 5601:5601
+    networks:
+      - elasticsearch
+    depends_on:
+      - elasticsearch
+
+volumes:
+  elasticsearch-data:
+    driver: local
+  kibanadata:
+    driver: local
+networks:
+  elasticsearch:
+    driver: bridge

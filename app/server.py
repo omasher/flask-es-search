@@ -1,9 +1,17 @@
-from flask import Flask
-server = Flask(__name__)
+from flask import Blueprint, request
+# from app import es
 
-@server.route("/")
+bp = Blueprint('data', __name__, url_prefix='/')
+
+
+@bp.route("/")
 def hello():
-    return { "hello": "world!" }
-
-if __name__ == "__main__":
-    server.run(host='0.0.0.0')
+    # q = request.args.get('q')
+    # result = es.search(index='data', body={
+    #     'query': {
+    #         'query_string': {
+    #             'query': q
+    #         }
+    #     }
+    # })
+    return {"success": True}
