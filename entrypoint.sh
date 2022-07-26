@@ -1,10 +1,11 @@
 #!/bin/sh
 
-set -e
+while ! nc -z elasticsearch 9200; do 
+    sleep 1
+    echo "Waiting on Elasticsearch to launch on 9200..."
+done
 
-ES_HOST="$1"
-
-timeout 300 bash -c "until curl --silent --output /dev/null $ES_HOST/_cat/health?h=st; do printf '.'; sleep 5; done; printf '\n'"
+echo "Elasticsearch is running"
 
 python run.py
 
